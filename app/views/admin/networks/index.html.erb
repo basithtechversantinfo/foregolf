@@ -1,0 +1,32 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Networks</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @networks.each do |network| %>
+      <tr>
+        <td><%= network.name %></td>
+        <td><%#= link_to 'Show', admin_network_path(network) %></td>
+        <td><%= link_to 'Edit', edit_admin_network_path(network) %></td>
+        <td><%= link_to 'Delete', admin_network_path(network), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%#= link_to 'New Network', new_admin_network_path %>
+<style type="text/css">
+td {
+  padding: 10px;
+}
+</style>

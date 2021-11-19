@@ -1,0 +1,78 @@
+<td colspan="8">
+  <%= form_for hole, url: admin_update_holes_details_path(@course), method: "post", :html => { :multipart => true, id: "hole_#{hole.id}_update_form"} do |f|%>
+    <%= f.hidden_field :id %>
+    <table class="table borderless hole_form_table">
+      <tbody>
+        <tr>
+          <td><%= hole.hole_num %></td>
+          <td>
+            <% if hole.video.present? %>
+              <% if hole.video.status == "uploading" %>
+                <span>Processing...</span>
+              <% elsif hole.video.status != "processing" %>
+                <span><%= hole.video.video_file_name %></span>
+                <span><%= link_to 'Delete', admin_video_path(hole.video), method: :delete, data: { confirm: 'Are you sure?' } %></span>
+              <% else %>
+                <span>Uploading...</span>
+              <% end %>
+            <% else %>
+              <span class="btn btn-success btn-file">Upload Video<%= f.file_field :video %></span>
+            <% end %>
+          </td>
+          <td>
+            <% if hole.image.present? %>
+              <span><%= image_tag hole.image.url, style: "width: 50px;" %></span>
+              <span><%= link_to 'Delete', admin_remove_image_path(hole), method: :put, data: { confirm: 'Are you sure?' } %></span>
+            <% else %>
+              <span class="btn btn-success btn-file">Upload Cover<%=  f.file_field :image %></span>
+            <% end %>
+          </td>
+          <td>
+            <% if hole.map.present? %>
+              <span><%= image_tag hole.map.url, style: "width: 50px;" %></span>
+              <span><%= link_to 'Delete', admin_remove_map_path(hole), method: :put, data: { confirm: 'Are you sure?' }%></span>
+            <% else %>
+              <span class="btn btn-success btn-file">Upload Map<%=  f.file_field :map %></span>
+            <% end %>
+          </td>
+          <td><span class="btn btn-success btn-file">Upload Images<%=  f.file_field :hole_images, type: :file, multiple: true %></span>
+            <% if hole.hole_images.count > 0 %>
+              <span class="other_hole_images" data-hole-id="<%= hole.id%>">View other images</span>
+            <% end %>
+          </td>
+          <td>
+            <%= link_to "javascript:void(0)", class: "btn btn-success update_yardages", "data-hole-id": "#{hole.id}" do %>
+              Update Yardages
+            <% end %>
+          </td>
+          <td><%=  f.text_field :description, class: "form-control", placeholder: "Description"%></td>
+          <td><%=  f.submit "Save", class: "btn btn-primary", id: "update_hole_#{hole.id}" %>
+            <span class="progress_percent"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  <% end %>
+</td>
+<script type="text/javascript">
+  $(function(){
+    $('form#hole_<%= hole.id %>_update_form').ajaxForm({
+        beforeSend: function() {
+          var form = $("form#hole_<%= hole.id %>_update_form");
+          $("#update_hole_<%= hole.id %>").hide();
+          form.find("span.progress_percent").html("0%");
+        },
+        uploadProgress: function(event, position, total, percentComplete) {
+          var form = $("form#hole_<%= hole.id %>_update_form");
+          form.find("span.progress_percent").html(percentComplete+ "%");
+          if(percentComplete == "100"){
+            form.find("span.progress_percent").html("Processing...");
+          }
+        },
+        success: function() {
+        },
+      complete: function(xhr) {
+      }
+    });
+  });
+</script>

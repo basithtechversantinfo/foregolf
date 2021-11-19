@@ -1,0 +1,278 @@
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<div class="container">
+
+
+<% content_for :side_nav do %>
+  <%= render :partial => 'admin/shared/side_nav' %>
+<% end %>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <h2>
+        <%= image_tag @course.cover, style: "height:75px; widht: 75px" %>
+        <%=@course.name.titleize %>
+      </h2>
+      <table class="table">
+        <tr>
+          <td>Location</td>
+          <td><%= @course.try(:formated_location) || 'N/A' %></td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td><%= @course.try(:course_type) || 'N/A' %></td>
+        </tr>
+        <tr>
+          <td>Amenities</td>
+          <td><%= @course.try(:amenities_list) || 'N/A' %></td>
+        </tr>
+        <tr>
+          <td>Contact</td>
+          <td><%= @course.try(:phone_num) || 'N/A' %></td>
+        </tr>
+        <tr>
+          <td>Website</td>
+          <td><%= @course.try(:website) || 'N/A' %></td>
+        </tr>
+      </table>
+      <div class="panel panel-default">
+        <div class="panel-body course_show_video">
+          <video id="hole-vid" class="video-js vjs-default-skin vjs-big-play-centered" controls width="700px" height="400px"></video>
+          <br>
+          <div>
+            <button class="previous show-prev">Previous</button>
+            <button class="next show-next">Next</button>
+            <button class="flag">Flag</button>
+          </div>
+          <br>
+          <h4>Embedable Link For Videos</h4>
+          <textarea style="width:710px; height:90px; resize:none; padding: 10px; text-align: center; " readonly>
+            <div class="fore-test-iframe">
+              <iframe src="<%= "#{request.base_url}/admin/resorts/#{@course.resort_id}/courses_list" %>" width="100%"  allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" style="height:270vh; border: none;" id="fore_videos_iframe" onload="resizeIframe(this)"> </iframe>
+            </div>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+            <script type="text/javascript" src="https://d1s5na5d5z3eyp.cloudfront.net/assets/iframeResizer.min.js"></script>
+            <script type="text/javascript">
+              iFrameResize({log: true, enablePublicMethods: true });
+            </script>
+          </textarea>
+        </div>
+    </div>
+    <%= render 'holes_details_form'%>
+  </div>
+
+</div>
+<div class="hole_yardages"></div>
+<!-- <link href="//vjs.zencdn.net/6.2.8/video-js.min.css" rel="stylesheet">
+<script src="//vjs.zencdn.net/6.2.8/video.min.js"> </script>
+<script src="https://rawgit.com/atlance01/vrapp-ionic/master/www/js/lib/videojs-playlist.js"></script>
+ -->
+
+<script type="text/javascript">
+  var videoList = []
+
+for (var i = 0, len = gon.videos_urls.length; i < len; i++) {
+  videoList.push({
+    sources: [{
+      src: gon.videos_urls[i],
+      type: 'video/mp4'
+    }]
+  });
+}
+
+var player = videojs(document.querySelector('video'), {
+  inactivityTimeout: 0
+});
+
+try {
+  player.volume(1);
+} catch (e) {}
+
+player.playlist(videoList);
+
+document.querySelector('.previous').addEventListener('click', function() {
+  player.playlist.previous();
+});
+document.querySelector('.next').addEventListener('click', function() {
+  player.playlist.next();
+});
+document.querySelector('.flag').addEventListener('click', function() {
+  for (var i = 0, len = gon.videos.length; i < len; i++) {
+    if (gon.tags[i].length > 0) {
+      if (player.currentSrc().includes(gon.videos[i].video_file_name) && gon.videos[i].id == gon.tags[i][0].video_id) {
+        player.currentTime(gon.tags[i][0].time);
+      }
+    }
+  }
+});
+
+/* ADD PREVIOUS */
+var Button = videojs.getComponent('Button');
+
+var PrevButton = videojs.extend(Button, {
+  constructor: function() {
+    Button.apply(this, arguments);
+    this.addClass('icon-angle-left');
+    this.controlText("Previous");
+  },
+
+  handleClick: function() {
+    player.playlist.previous();
+  }
+});
+
+/* ADD NEXT */
+var NextButton = videojs.extend(Button, {
+  constructor: function() {
+    Button.apply(this, arguments);
+    this.addClass('icon-angle-right');
+    this.controlText("Next");
+  },
+
+  handleClick: function() {
+    player.playlist.next();
+  }
+});
+
+/* ADD FLAG */
+var FlagButton = videojs.extend(Button, {
+  constructor: function() {
+    Button.apply(this, arguments);
+    this.addClass('icon-flag');
+    this.controlText("Flag");
+  },
+
+  handleClick: function() {
+    for (var i = 0, len = gon.videos.length; i < len; i++) {
+      if (gon.tags[i].length > 0) {
+        if (player.currentSrc().includes(gon.videos[i].video_file_name) && gon.videos[i].id == gon.tags[i][0].video_id) {
+          player.currentTime(gon.tags[i][0].time);
+        }
+      }
+    }
+  }
+});
+
+// Register the new component
+videojs.registerComponent('NextButton', NextButton);
+videojs.registerComponent('PrevButton', PrevButton);
+videojs.registerComponent('FlagButton', FlagButton);
+player.getChild('controlBar').addChild('PrevButton', {}, 0);
+player.getChild('controlBar').addChild('NextButton', {}, 2);
+player.getChild('controlBar').addChild('FlagButton', {}, 3);
+
+
+$('div #logo_hyperlink').on('blur', function(){
+  $('.tooltip').addClass('hide');
+  hole = $(this).attr('hole_number');
+  hid = $(this).attr('hole_id');
+  hyperLink = $(this).val();
+  $.ajax({
+     type: "POST",
+     url: '/admin/holes/add_logo_hyperlink',
+     data: {
+      hole_no : hole,
+      hyperlink : hyperLink,
+      hole_id : hid
+     },
+     complete: function(response) {
+       copyAll = ".copy-" + hole
+       $(copyAll).removeClass('hide');
+       $(this).css({"border-right": "none"});
+     }
+  });
+});
+
+$('.tooltip').click(function(){
+  hyperLink = $(this).siblings('#logo_hyperlink').val();
+  courseId = $(this).siblings('#logo_hyperlink').attr('course_id');
+  copyAll = "true"
+  $.ajax({
+     type: "POST",
+     url: '/admin/holes/add_logo_hyperlink',
+     data: {
+      hyperlink : hyperLink,
+      course_id : courseId,
+      copy_all : copyAll
+     },
+     complete: function(response) {
+       $('div #logo_hyperlink').val(hyperLink)
+     }
+  });
+});
+</script>
+
+<style type="text/css">
+  .video-holder,
+  .video-holder * {
+    box-sizing: border-box !important
+  }
+
+  .video-holder {
+    background: #1b1b1b;
+    padding: 10px
+  }
+
+  .centered {
+    width: 100%
+  }
+
+  #video {
+    border-radius: 8px
+  }
+
+  .video-holder .vjs-big-play-button {
+    left: 50%;
+    width: 100px;
+    margin-left: -50px;
+    height: 80px;
+    top: 50%;
+    margin-top: -40px
+  }
+
+
+  /* CUSTOM BUTTONS */
+  [class^="icon-"]:before,
+  [class*=" icon-"]:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+  }
+  .icon-angle-left:before {
+      content: "\f104";
+  }
+  .icon-angle-right:before {
+      content: "\f105";
+  }
+  .icon-flag:before {
+      content: "\f024";
+  }
+
+  .video-js .icon-angle-right, .video-js .icon-angle-left .icon-flag {
+      cursor: pointer;
+      -webkit-box-flex: none;
+      -moz-box-flex: none;
+      -webkit-flex: none;
+      -ms-flex: none;
+      flex: none;
+  }
+  #logo_hyperlink {
+      width: 80%;
+      float: left;
+  }
+  #logo_hyperlink + .tooltip {
+    display: block;
+    opacity: 1;
+    position: relative;
+    float: right;
+    width: 20%;
+    padding: 11px 10px 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-left: 0px;
+    left: -3px;
+  }
+</style>

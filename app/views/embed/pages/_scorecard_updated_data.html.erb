@@ -1,0 +1,40 @@
+<div class="topborder" style="margin-right: 0px;">
+  <div class="mobile-scroll">
+    <table class="score-specs">
+      <tbody>
+        <tr class="rowcolumns" color="<%=color_selector(score_card.course.color_selector)%>">
+          <td class="rowstart">TEE</td>
+          <% 18.times do |t| %>
+           <%t+=1%>
+           <td class="rowcolumns"><%=t%></td>
+           <%if t == 9 %>
+            <td class="rowstart">OUT</td>
+           <% end %>
+          <% end %>
+          <td class="rowstart">IN</td>
+          <td class="rowstart">TOT</td>
+        </tr>
+        <tr class="updated-rows">
+          <td class="rowstart">YDS</td>
+          <% yards_data = score_card.get_yards_data %>
+          <% yards_data.each do |yard| %>
+            <td class="rowcolumns"><%= yard %></td>
+          <% end %>
+        </tr>
+        <tr class="updated-rows">
+          <td class="rowstart">PAR</td>
+          <% pars_data = score_card.get_pars_data %>
+          <% pars_data.each do |par| %>
+            <td class="rowcolumns"><%= par %></td>
+          <% end %>
+        <tr class="updated-rows">
+          <td class="rowstart">HCP</td>
+          <% hcps_data = score_card.get_hcps_data %>
+          <% hcps_data.each do |hcp| %>
+            <td class="rowcolumns"><%= hcp %></td>
+          <% end %>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

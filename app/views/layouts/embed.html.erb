@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ForeEmbedPage</title>
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_link_tag    'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%= render :partial => 'layouts/google_analytics' %>
+    <script src="https://www.foregolf.com/wp-content/plugins/advanced-iframe/js/ai_external.js"></script>
+   </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>

@@ -1,0 +1,328 @@
+<div id="course-page-content-wrapper" class="col-md-12" style="margin-top: 0px;">
+  <%= form_for(@course, url: url_for(controller: 'courses', action: 'update'), method: :put, :html => { :multipart => true }) do |f| %>
+    <div class="col-md-12 course-info-row">
+      <div class="col-md-12">
+        <h4>Course Information</h4>
+      </div>
+      <div class="col-md-4 form-group">
+        <%= label_tag :name ,'Name',class: "col-md-12 zero-left-right-padd"%>
+        <%= f.text_field :name , class: "col-md-12 form-control check-field", placeholder: "Full name of course"%>
+      </div>
+
+      <div class="col-md-4 cover-first-row-photos bucket">
+        <%= label_tag :cover ,'Cover Photo',class:"col-md-12 zero-left-right-padd "%>
+        <div class="cover-label">
+          <%= f.file_field :cover, class: 'btn btn-success upload-btn check-field cover-field' %>
+        </div>
+        <div class="cover image-division">
+          <% if @course.cover.present? %>
+            <img src="<%= @course.cover.url %>" class="course-logo-image cimage" id="<%=params[:id]%>" name="cover">
+          <% end %>
+        </div>
+      </div>
+
+      <div class="col-md-4 second-row-photos">
+        <%= label_tag :photos ,'Photos',class: "col-md-12 zero-left-right-padd "%>
+        <div class="clearfix"></div>
+        <div class="btn btn-success upload-btn">
+          <%= file_field_tag "images[]", type: :file, multiple: true, class: 'course-photos-field' %>
+          <%# course_photo_url = @course.course_images %>
+          <div class="temp-photos-collection"></div>
+          <div class="photos-collection course_photos">
+            <%= render 'course_photo_collection' %>
+          </div>
+          <% if @course.course_images.count > 1 %>
+            <%= link_to admin_course_get_course_images_path(@course, image_type: 'course'), class: "button", remote: true do%>
+              Re-order Images
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12 course-info-row">
+      <div class="col-md-4 form-group">
+        <%= label_tag :bio ,'Bio',class: "col-md-12 zero-left-right-padd"%>
+        <%= f.text_area :bio, rows: "4", class: 'col-md-12 form-control check-field'%>
+      </div>
+      <div class="col-md-4 form-group">
+        <%= label_tag :color_selector ,'Color Selector',class:"col-md-12 zero-left-right-padd"%>
+        <%= f.text_field :color_selector, class: "col-md-12 form-control check-field", placeholder: "Color Selector" %>
+      </div>
+      <div class="col-md-4 course-info-row">
+        <%= label_tag :scorecard_images ,'Score Card Images',class: "col-md-12 zero-left-right-padd "%>
+        <div class="clearfix"></div>
+        <div class="btn btn-success upload-btn">
+          <%= file_field_tag "scorecard_images[]", type: :file, multiple: true, class: 'check-field course-scorecard-images-field' %>
+          <div class="photos-collection scorecard_photos">
+            <%= render 'scorecard_photo_collection' %>
+          </div>
+          <% if @course.scorecard_images.count > 1 %>
+            <%= link_to admin_course_get_course_images_path(@course, image_type: 'scorecard'), class: "button", remote: true do%>
+              Re-order Images
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="col-md-12 form-group" style="padding-left: 0px; padding-right: 21px;">
+        <div class="col-md-4 form-group">
+          <%= label_tag :transparent_logo ,'Logo',class:"col-md-12 zero-left-right-padd "%>
+          <div class="clearfix"></div>
+          <div class="btn btn-success upload-btn">
+            <div class="cover-label">
+              <%= f.file_field :transparent_logo %>
+            </div>
+            <div class="logo-preview" style="min-height: 70px;">
+              <% if @course.transparent_logo.present? %>
+                <span class="close-cross remove_logo" style="top: 50px; left: 165px;" data-course-id="<%= @course.id %>">&times;</span>
+                <%= image_tag @course.transparent_logo.url(:medium), class: "course-photo-images" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 form-group" style="padding-left: 22px; padding-right: 2px;">
+          <%= label_tag :logo_hyperlink ,'Logo Hyperlink',class:"col-md-12 zero-left-right-padd"%>
+          <%= f.text_field :logo_hyperlink , class:"col-md-12 form-control check-field", placeholder: "Redirect URL on click of logo"%>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12 course-info-row">
+      <h4 class="col-md-4 playlist_heading">Playlist</h4>
+      <% @course.playlist_items.each_with_index do |video, index| %>
+        <% if video.id.present? %>
+          <div class="col-md-12 course-info-row video_item" id="video_item_<%= index %>">
+            <%= hidden_field_tag "course_video[#{video.id}][rank]", video.rank.present? ? video.rank : index + 1, class: "rank-field", placeholder: "Item Title"%>
+            <div class="col-md-4 form-group">
+              <%= label_tag :title ,"Item ##{video.rank.present? ? video.rank : index + 1}",class:"col-md-12 zero-left-right-padd item_title", style: "width: auto;"%>
+              <div class="ordering_buttons">
+                <%= link_to "", "javascript:void(0)", class: "btn btn-sm btn-primary glyphicon glyphicon-chevron-up video-reorder-up" %>
+                <%= link_to "", "javascript:void(0)", class: "btn btn-sm btn-primary glyphicon glyphicon-chevron-down video-reorder-down" %>
+              </div>
+              <%= text_field_tag "course_video[#{video.id}][title]", video.title, class: "col-md-12 form-control check-field", placeholder: "Item Title"%>
+            </div>
+            <div class="col-md-4">
+              <%= label_tag :video ,'Video',class: "col-md-12 zero-left-right-padd "%>
+              <div class="clearfix"></div>
+              <div class="btn btn-success upload-btn">
+                <div class="cover-label">
+                  <%= file_field_tag "course_video[#{video.id}][video]", class: 'check-field cover-field' %>
+                  <div class="video-collection"><%= video.video_file_name %></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <%= label_tag :thumbnail_image ,'Thumbnail Image', class: "col-md-12 zero-left-right-padd"%>
+              <div class="clearfix"></div>
+              <div class="btn btn-success upload-btn">
+                <%= file_field_tag "course_video[#{video.id}][thumbnail_image]", type: :file %>
+                <%# course_photo_url = @course.course_images %>
+                <div class="photos-collection">
+                  <div class="photo-division">
+                    <img src="<%= video.thumbnail_image.url %>" class="course-photo-images" id="<%= video.id %>">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= label_tag :bio ,'Description',class:"zero-left-right-padd"%>
+              <%= text_area_tag "course_video[#{video.id}][description]", video.description, rows: "4", class: 'form-control check-field'%>
+            </div>
+            <div class="col-md-4">
+              <%= link_to "Remove Video", admin_video_path(video), class: "btn btn-danger", method: :delete, data: { confirm: 'Are you sure?' }, style: "    margin-top: 45px;"%>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+      <%#= render 'videos_form', video_index: @course.videos.count + 1 %>
+      <div class="col-md-12">
+        <button type="button" class="btn btn-info btn-add" id='add_playlist' href="javascript:void(0)">+</button>
+        <button type="button" class="btn btn-info btn-add" id='remove_playlist' href="javascript:void(0)" style="display: none;">-</button>
+      </div>
+    </div>
+    <h4 class="col-md-4 scorecard_heading">Scorecard</h4>
+    <% @course.sorted_scorecards.each_with_index do |scorecard, index| %>
+      <div class="col-md-12 course-info-row scorecard_container zero-left-right-padd">
+        <%= hidden_field_tag "course_scorecard[#{scorecard.id}][rank]", scorecard.rank.present? ? scorecard.rank : index + 1, class: "rank-field"%>
+        <div class="col-md-2 col-lg-2 col-sm-12">
+          <%= text_field_tag "course_scorecard[#{scorecard.id}][tee_name]", scorecard.tee_name, class: "col-md-12 form-control", placeholder: "Tee Name"%>
+        </div>
+        <div class="col-md-2 col-lg-2 col-sm-12">
+          <%= select_tag "course_scorecard[#{scorecard.id}][color]", options_for_select(["Green", "Red", "White", "Blue", "Violet", "Gold", "Teal", "LightBlue", "Black"], scorecard.color), class:'dropdown-less-padd form-control inline check-field' ,style: 'margin-left:10px;'%>
+        </div>
+        <div class="col-md-6 col-lg-6 col-sm-12">
+          <div class="col-md-3">
+            <%= text_field_tag "course_scorecard[#{scorecard.id}][total_par]", scorecard.total_par, class: "col-md-12 form-control total_par", placeholder: "PAR", readonly: true%>
+          </div>
+          <div class="col-md-3">
+            <%= text_field_tag "course_scorecard[#{scorecard.id}][total_yards]", scorecard.total_yards, class: "col-md-12 form-control total_yards", placeholder: "YARDS", readonly: true%>
+          </div>
+          <div class="col-md-3">
+            <%= text_field_tag "course_scorecard[#{scorecard.id}][total_rating]", scorecard.rating, class: "col-md-12 form-control total_rating", placeholder: "RATING"%>
+          </div>
+          <div class="col-md-3">
+            <%= text_field_tag "course_scorecard[#{scorecard.id}][total_slope]", scorecard.slope, class: "col-md-12 form-control total_slope", placeholder: "SLOPE"%>
+          </div>
+        </div>
+        <div class="col-md-2 col-lg-2 col-sm-4">
+          <%= link_to "-", admin_score_card_path(scorecard), class: "btn btn-info btn-add", method: :delete, data: { confirm: 'Are you sure?' }%>
+          <div class="ordering_buttons">
+            <%= link_to "", "javascript:void(0)", class: "btn btn-sm btn-primary glyphicon glyphicon-chevron-up scorecard-reorder-up" %>
+            <%= link_to "", "javascript:void(0)", class: "btn btn-sm btn-primary glyphicon glyphicon-chevron-down scorecard-reorder-down" %>
+          </div>
+        </div>
+        <div class="col-md-12 zero-left-right-padd">
+          <table class="table borderless scorecard_table">
+            <thead>
+              <th>TEE</th>
+              <% (1..9).each do |int|%>
+                <th><%= int %></th>
+              <% end %>
+              <th>OUT</th>
+              <% (10..18).each do |int|%>
+                <th><%= int %></th>
+              <% end %>
+              <th>IN</th>
+              <th>TOT</th>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>YDS</strong></td>
+                <% yards_data = scorecard.get_yards_data %>
+                <% (1..9).each do |int|%>
+                  <td>
+                    <%= text_field_tag "course_scorecard[#{scorecard.id}][holes][#{int}][yardges]", yards_data[int-1], class: "form-control yards_input yards_input_first_half"%>
+                  </td>
+                <% end %>
+                <td>
+                  <%= text_field_tag "course_scorecard[#{scorecard.id}][yds_out]", yards_data[9], class: "form-control yards_first_total", readonly: true%>
+                </td>
+                <% (10..18).each do |int|%>
+                  <td>
+                    <%= text_field_tag "course_scorecard[#{scorecard.id}][holes][#{int}][yardges]", yards_data[int], class: "form-control yards_input yards_input_second_half"%>
+                  </td>
+                <% end %>
+                <td>
+                  <%= text_field_tag "course_scorecard[#{scorecard.id}][yds_in]", yards_data[19], class: "form-control yards_second_total", readonly: true%>
+                </td>
+                <td>
+                  <%= text_field_tag "course_scorecard[#{scorecard.id}][yds_final_out]", yards_data[20], class: "form-control yards_total", readonly: true%>
+                </td>
+              </tr>
+
+              <tr>
+                <td><strong>PAR</strong></td>
+                <% par_data = scorecard.get_pars_data %>
+                <% (1..9).each do |int|%>
+                  <td>
+                    <%= text_field_tag "course_scorecard[#{scorecard.id}][holes][#{int}][par]", par_data[int-1], class: "form-control par_input_first_half par_input"%>
+                  </td>
+                <% end %>
+                <td>
+                  <%= text_field_tag "course_scorecard[#{scorecard.id}][par_out]", par_data[9], class: "form-control par_first_total", readonly: true%>
+                </td>
+                <% (10..18).each do |int|%>
+                  <td>
+                    <%= text_field_tag "course_scorecard[#{scorecard.id}][holes][#{int}][par]", par_data[int], class: "form-control par_input_second_half par_input"%>
+                  </td>
+                <% end %>
+                <td>
+                  <%= text_field_tag "course_scorecard[#{scorecard.id}][par_in]", par_data[19], class: "form-control par_second_total", readonly: true%>
+                </td>
+                <td>
+                  <%= text_field_tag "course_scorecard[#{scorecard.id}][par_final_out]", par_data[20], class: "form-control par_total", readonly: true%>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>HCP</strong></td>
+                <% hcp_data = scorecard.get_hcps_data%>
+                <% (1..9).each do |int|%>
+                  <td>
+                    <%= text_field_tag "course_scorecard[#{scorecard.id}][holes][#{int}][hcp]", hcp_data[int-1], class: "form-control"%>
+                  </td>
+                <% end %>
+                <td>
+
+                </td>
+                <% (10..18).each do |int|%>
+                  <td>
+                    <%= text_field_tag "course_scorecard[#{scorecard.id}][holes][#{int}][hcp]", hcp_data[int], class: "form-control"%>
+                  </td>
+                <% end %>
+                <td>
+
+                </td>
+                <td>
+
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+    <%#= render 'scorecard_form', scorecard_index: @course.score_cards.count + 1 %>
+    <div class="col-md-12">
+      <button type="button" class="btn btn-info btn-add" id='add_scorecard' href="javascript:void(0)">+</button>
+      <button type="button" class="btn btn-info btn-add" id='remove_scorecard' href="javascript:void(0)" style="display: none;">-</button>
+    </div>
+    <div class="col-md-12 actions mar-top-50">
+      <%= f.submit "Update", class: 'btn btn-success' %>
+      <%= link_to "Next", admin_course_holes_list_path(@course), class: 'btn btn-primary button', data: { turbolinks: false} %>
+      <%= link_to 'Back', admin_resort_courses_path(@course.resort), class: 'btn btn-info button' %>
+    </div>
+  <%end%>
+
+  <%#= render :partial => 'admin/resorts/new_modal' %>
+  <%#= render :partial => 'admin/networks/new_modal' %>
+</div>
+
+<div id="course_images_container"></div>
+
+<script type="text/javascript">
+  var video_index = <%= @course.videos.count %>;
+  var scorecard_index = <%= @course.score_cards.count %>;
+  $("#add_playlist").on('click', function(){
+    $.ajax({
+      url: "<%= admin_add_playlist_item_path %>",
+      type: "GET",
+      data: {video_index: video_index, from_edit: true}
+    });
+    video_index ++;
+  })
+
+  $("#remove_playlist").on('click', function(){
+    video_index --;
+    var last_video_element = $(".video_item").last();
+    if (last_video_element.find("a.btn-danger").length > 0){
+      alert("Click on 'Remove Video' button to delete the last item.")
+    }else{
+      $(last_video_element).remove();
+      if ($(".video_item").length == 1){
+        $("#remove_playlist").hide();
+      }
+    }
+  })
+
+  $("#add_scorecard").on('click', function(){
+    $.ajax({
+      url: "<%= admin_add_scorecard_path %>",
+      type: "GET",
+      data: {scorecard_index: scorecard_index, from_edit: true}
+    });
+    scorecard_index ++;
+  })
+
+  $("#remove_scorecard").on('click', function(){
+    scorecard_index --;
+    var last_scorecard = $(".scorecard_container").last();
+    if (last_scorecard.find("a.btn-add").length > 0){
+      alert("Click on '-' button to delete the last scorecard.")
+    }else{
+      $(last_scorecard).remove();
+      if ($(".scorecard_container").length == 1){
+        $("#remove_scorecard").hide();
+      }
+    }
+  });
+</script>

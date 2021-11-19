@@ -1,0 +1,772 @@
+
+  <!-- // <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bxslider/4.2.12/jquery.bxslider.js"></script>
+  <div class="row description">
+    <div class="col-md-12">
+      <div class="row">
+        <div class="col-md-6">
+          <!-- <h3><b class="hole_title"><%= @hole.hole_num %><%= @hole.hole_num==1 ? 'st' : @hole.hole_num==2 ? 'nd' : @hole.hole_num==3 ? 'rd' : 'th' %> Hole, Par <%= @hole.pars.first.par if @hole.pars.present? %></b></h3> -->
+          <h3><b class="hole_title">Hole <%= @hole.hole_num %>, Par <%= @hole.pars.first.par if @hole.pars.present? %></b></h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h4 class="hole_description"><%= @hole.description %></h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 yards">
+      <% @hole.course.score_cards.each do |tee| %>
+        <span class="points">
+          <!-- <h3><b><%#= @hole.hole_num %> Hole</b></h3> -->
+          <% yard = @hole.yardages.find_by(score_card_id: tee.id)%>
+          <h3><%= image_tag "tees/#{tee.color}.png" %><b class="yard_title"> <%= yard.present? ? yard.yards : 'N/A' %> YDS</b></h3>
+        </span>
+      <%end%>
+    </div>
+  </div>
+  <div class="row slider">
+    <div class="col-md-12 st1">
+      <div class="btn-group btn-group-lg map-slecter map-photos-section">
+        <button type="button" class="btn" id="select_map" color="<%=color_selector(@course_color)%>">Map</button>
+        <button type="button" class="btn" id="select_photos" color="<%=color_selector(@course_color)%>">Photos</button>
+      </div>
+      <div id="11">
+        <ul id="map">
+          <li><%=image_tag @hole.map.url %></li>
+        </ul>
+      </div>
+      <div id="22">
+        <div class= "slider-bg-color"> </div>
+        <div class="slider-bg-color-right"> </div>
+        <ul id="slider-1" class="bxslider">
+          <% @hole.hole_images.order(:rank).each do | holeimage | %>
+            <li><%=image_tag holeimage.image.url %></li>
+          <% end%>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-12 st2">
+      <div class="divider map-photos-section">
+        <button type="button" class="btn" id="hole-map" color="<%=color_selector(@course_color)%>">Map</button>
+        <button type="button" class="btn" id="hole-photos" color="<%=color_selector(@course_color)%>">Photos</button>
+      </div>
+      <div id="33">
+        <ul id="map">
+          <li><%=image_tag @hole.map.url %></li>
+        </ul>
+      </div>
+      <div id="44">
+        <div class= "slider-bg-color hole-info-left"> </div>
+        <div class="slider-bg-color-right hole-info-right"> </div>
+        <ul id="slider-2" class="bxslider">
+          <% @hole.hole_images.order(:rank).each do | holeimage | %>
+            <li><%=image_tag holeimage.image.url %></li>
+          <% end%>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+  
+$(document).ready(function() {
+  sliderInitializer1();
+  sliderInitializer2();
+
+  $(".right-arrow-hover").mouseover(function(){
+    $(".slider-bg-color-right").css("background-image", "linear-gradient(to right, rgba(0,0,0,0), rgba(0, 0, 0, 0.15))");
+  });
+
+  $(".right-arrow-hover").mouseout(function(){
+    $(".slider-bg-color-right").css("background-image", "none");
+  });
+
+  $(".left-arrow-hover").mouseover(function(){
+    $(".slider-bg-color").css("background-image", "linear-gradient(to right, rgba(0, 0, 0, 0.15), rgba(0,0,0,0))");
+  });
+
+  $(".left-arrow-hover").mouseout(function(){
+    $(".slider-bg-color").css("background-image", "none");
+  });
+    
+});
+
+function sliderInitializer1 (){
+  var slider1 = $('#slider-1').bxSlider({
+    mode: 'horizontal',
+    useCSS: false,
+      pager: false,
+      nextText: '<%= image_tag "right.png", class: 'right-arrow-hover' %>',
+      prevText: '<%= image_tag "left.png", class: 'left-arrow-hover' %>'
+   });
+
+  $('.slider-bg-color-right').click(function() {
+    slider1.goToNextSlide();
+  });
+
+  $('.slider-bg-color').click(function() {
+    slider1.goToPrevSlide();
+  });
+
+  return slider1;
+}
+
+function sliderInitializer2 (){
+  var slider2 = $('#slider-2').bxSlider({
+    mode: 'horizontal',
+    useCSS: false,
+      pager: false,
+      nextText: '<%= image_tag "right.png", class: 'right-arrow-hover' %>',
+      prevText: '<%= image_tag "left.png", class: 'left-arrow-hover' %>'
+   });
+
+  $('.hole-info-right').click(function() {
+    slider2.goToNextSlide();
+  });
+
+  $('.hole-info-left').click(function() {
+    slider2.goToPrevSlide();
+  });
+
+  return slider2;
+}
+
+$('#select_map').click(function (){
+  bgColor=$(this).attr('color');
+  
+  $('#22').invisible();
+  // $(".st1 .bx-wrapper").invisible();
+
+  $('#select_photos').removeClass('selected');
+  $('#select_photos').addClass('non-selected');
+  $('#select_photos').css({"background-color":"white"});
+
+  $('#map').show();
+  $('#select_map').removeClass('non-selected');
+  $('#select_map').addClass('selected');
+  $('#select_map').css({"background-color":bgColor});
+
+});
+
+$('#select_photos').click(function (){
+  bgColor=$(this).attr('color');
+  $('#map').hide();
+  $('#select_map').removeClass('selected');
+  $('#select_map').addClass('non-selected');
+  $('#select_map').css({"background-color":"white"});
+
+
+  $('#select_photos').removeClass('non-selected');
+  $('#select_photos').addClass('selected');
+  $('#select_photos').css({"background-color":bgColor});
+
+  // $('.st1 .bx-wrapper').show();
+  // $('#22').show();
+  $('#22').visible();
+  
+});
+
+$('#hole-map').click(function (){
+  bgColor=$(this).attr('color');
+  // $('.st1 .bx-wrapper').hide();
+  // $('#22').hide();
+  $('#44').invisible();
+  // $(".st1 .bx-wrapper").invisible();
+
+  $('#hole-photos').removeClass('set');
+  $('#hole-photos').addClass('unset');
+  $('#hole-photos').css({"border-bottom": "4px solid black"});
+  // $('#hole-photos').css({"background-color":"white"});
+
+  $('#map').show();
+  $('#hole-map').removeClass('unset');
+  $('#hole-map').addClass('set');
+  $('#hole-map').css({"border-bottom": "4px solid" + bgColor});
+
+ 
+});
+
+$('#hole-photos').click(function (){
+  bgColor=$(this).attr('color');
+  $('#map').hide();
+  $('#hole-map').removeClass('set');
+  $('#hole-map').addClass('unset');
+  $('#hole-map').css({"border-bottom": "4px solid black"});
+  // $('#hole-map').css({"background-color":"white"});
+
+
+  $('#hole-photos').removeClass('unset');
+  $('#hole-photos').addClass('set');
+  $('#hole-photos').css({"border-bottom": "4px solid" + bgColor});
+
+  $('#44').visible();
+  
+  // $('.bx-next').show();
+  // $('.bx-prev').show();
+});
+
+(function($) {
+    $.fn.invisible = function() {
+        return this.each(function() {
+            $(this).css("visibility", "hidden");
+        });
+    };
+    $.fn.visible = function() {
+        return this.each(function() {
+            $(this).css("visibility", "visible");
+        });
+    };
+}(jQuery));
+
+$(document).ready(function() {
+  $('#select_map').trigger('click');
+  $('#hole-map').trigger('click');
+});
+// $(document).ready(function() { setTimeout (function() { $('#select_map').trigger('click') }, 500)});
+
+// $( window ).resize(function() {
+//   if($(document).width() >760) $('.map-slecter').addClass("btn-group-lg");
+//   else $('.map-slecter').removeClass("btn-group-lg");
+// });
+
+
+
+</script>
+<style type="text/css">
+.st2 {
+  display: none;
+}
+h3, h4 {
+  margin: 0;
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+h3 {
+  font-size: 20px;
+}
+.map-photos-section{
+  position: relative;
+  z-index: 200;
+}
+
+.selected{
+  background: black;
+  color: white !important;
+}
+.non-selected{
+  background: white;
+  color: black;
+}
+.map-slecter {
+  position: absolute;
+  z-index: 11;
+  left:50%;
+  top:50px;
+  margin-left: -80px;
+}
+
+.set{
+  color: white !important;
+  line-height: 20px;
+  outline: none !important;
+  background: black;
+  height: 100%;
+}
+.unset{
+  opacity: 0.4;
+  background: black;
+  line-height: 20px;
+  height: 100%;
+}
+#map{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+}
+#slider{
+  position: absolute;
+}
+#map li img {
+  width: 100%;
+  height: 100%;
+}
+
+.bxslider {
+    list-style:none;
+    margin:0;
+    padding:0
+}
+.st1 {
+  padding: 0;
+}
+
+.bxslider li img {
+  width: 100%;
+  height: 100%;
+}
+.bx-next, .bx-prev {
+  position: absolute;
+  top: 50%;
+  width: 17px;
+  z-index: 200;
+}
+.bx-next {
+  right: 50px;
+}
+.bx-next img, .bx-prev img{
+  width: 17px;
+}
+.bx-prev {
+  /*left: 62px;*/
+  left: 50px;
+}
+.description {
+  width: 100%;
+  padding-left: 50px;
+  font-family: 'Avenir',sans-serif;
+    /*font-family: 'RakerDisHvy',sans-serif;*/
+
+  font-weight: 400;
+  margin: 0;
+
+}
+.yards{
+  text-align: right;
+  padding-top: 30px;
+  padding-right: 60px;
+  width: 100%;
+}
+.points{
+  display: inline-table !important;
+  width: 45%;
+}
+.points h3 img {
+  padding-bottom: 5px;
+
+}
+.justify{
+  text-align: justify;
+}
+.slider {
+  margin: 0;
+  padding: 0;
+}
+.hole-map .hole-photos{
+  width: 50%;
+  font-size: 20px;
+}
+/*// 320, 480, 760, 960, 1200 and 1600px.*/
+      @media only screen and (min-width: 1600px) {
+        .description {
+          padding-top: 50px;
+          margin-bottom: 50px;
+          padding-left: 30px;
+          padding-right: 25px;
+        }
+        .yards {
+          padding-top: 0px;
+          margin-top: 0px;
+          text-align: left;
+        }
+        .points {
+          width: auto;
+          padding-right: 60px;
+
+        }
+
+        .points h3{
+          font-size: 20px;
+        }
+        .points h3 img{
+          height: 35px;
+          padding-right: 20px;
+        }
+        .hole_title {
+          font-size: 18px;
+          font-family: Avenir-Heavy;
+        }
+        .hole_description{
+          font-size: 16px;
+          font-family: Avenir-Book;
+        }
+        .yard_title{
+          font-size: 16px;
+          font-family: Raker-Bold;
+        }
+      }
+
+      @media only screen and (max-width: 1599px) and (min-width: 1200px) {
+        .description {
+          padding-top: 30px;
+          margin-bottom: 30px;
+          padding-left: 30px;
+          padding-right: 25px;
+        }
+         .yards {
+          padding-top: 0px;
+          margin-top: 0px;
+          text-align: left;
+        }
+        .points {
+          width: auto;
+          padding-right: 60px;
+        }
+        .bx-next img, .bx-prev img {
+          width: inherit;
+        }
+
+        .points h3{
+          font-size: 17px;
+        }
+        .points h3 img{
+          height: 25px;
+          padding-right: 10px;
+        }
+        .hole_title {
+          font-size: 18px;
+          font-family: Avenir-Heavy;
+        }
+        .hole_description{
+          font-size: 16px;
+          font-family: Avenir-Book;
+        }
+        .yard_title{
+          font-size: 16px;
+          font-family: Raker-Bold;
+        }
+      }
+
+      @media only screen and (max-width: 1199px) and (min-width: 992px) {
+        .description {
+          padding-top: 30px;
+          margin-bottom: 30px;
+          padding-left: 30px;
+          padding-right: 25px;
+        }
+       .yards {
+          padding-top: 0px;
+          margin-top: 0px;
+          text-align: left;
+          width: 100%;
+        }
+        .points {
+          width: auto;
+          padding-right: 60px;
+        }
+        .bx-next img, .bx-prev img {
+          width: inherit;
+        }
+
+        .points h3{
+          font-size: 17px;
+        }
+        .points h3 img{
+          height: 25px;
+          padding-right: 10px;
+        }
+        .hole_title {
+          font-size: 18px;
+          font-family: Avenir-Heavy;
+        }
+        .hole_description{
+          font-size: 16px;
+          font-family: Avenir-Book;
+        }
+        .yard_title{
+          font-size: 16px;
+          font-family: Raker-Bold;
+        }
+      }
+
+      @media only screen and (max-width: 991px) and (min-width: 760px) {
+        .st2 {
+          display: block;
+          padding: 0;
+        }
+        .st2 .row {
+          margin: 0;
+        }
+        .st2 .row .col-md-12{
+          padding: 0;
+        }
+
+        .st1{
+          display: none;
+        }
+        .st2 img{
+          width: 100%;
+          height: 100%;
+        }
+        .divider{
+          text-align: center;
+          width:100%;
+          height: 45px;
+          font-size: 20px;
+          line-height: 2;
+          color: white;
+          background-image:url(<%= image_url "hole-selector-background.png" %>);
+          background-size: 100% 100%;
+        }
+        .description {
+          padding-top: 30px;
+          margin-bottom: 40px;
+          padding-left: 30px;
+          padding-right: 50px;
+          /*margin-right: 0;*/
+        }
+        .bx-next {
+            right: 56px;
+        }
+        .bx-prev {
+            left: 56px;
+        }
+        .bx-next img, .bx-prev img {
+          width: 17px;
+        }
+         .yards {
+          text-align: center;
+          width: 100%;
+          display: table;
+          table-layout: fixed;
+          padding-right: 0;
+          padding-left: 0;
+          overflow-x: auto;
+          display: inline-flex;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .points{
+          display: table-cell;
+          width: 24% !important;
+        }
+        .points h3{
+          font-size: 18px;
+        }
+        .points h3 img{
+          height: 25px;
+          padding-right: 10px;
+        }
+        .hole_title {
+          font-size: 18px;
+          font-family: Avenir-Heavy;
+        }
+        .hole_description{
+          font-size: 16px;
+          font-family: Avenir-Book;
+        }
+        .yard_title{
+          font-size: 16px;
+          font-family: Raker-Bold;
+        }
+        #hole-map, #hole-photos{
+          width: 50%;
+          float: left;
+          font-size:20px;
+        }
+      }
+       @media only screen and (max-width: 768px){
+        .bx-next {
+            right: 33px;
+        }
+        .bx-prev {
+            left: 33px;
+        }
+        .bx-next img, .bx-prev img {
+          width: 13px;
+        }
+       }
+
+      @media only screen and (max-width: 759px) and (min-width: 480px) {
+        .st2 {
+          display: block;
+          padding: 0;
+        }
+        .st2 .row {
+          margin: 0;
+        }
+        .st2 .row .col-md-12{
+          padding: 0;
+        }
+
+        .st1{
+          display: none;
+        }
+        .st2 img{
+          width: 100%;
+          height: 100%;
+        }
+        .divider{
+          text-align: center;
+          width:100%;
+          height: 45px;
+          font-size: 20px;
+          line-height: 2;
+          color: white;
+          background-image:url(<%= image_url "hole-selector-background.png" %>);
+          background-size: 100% 100%;
+        }
+        .description {
+          padding-top: 30px;
+          margin-bottom: 40px;
+          padding-left: 50px;
+          padding-right: 50px;
+          text-align: center;
+        }
+        .bx-next img, .bx-prev img {
+          width: inherit;
+        }
+        .yards {
+          text-align: center;
+          width: 100%;
+          display: table;
+          table-layout: fixed;
+          padding-right: 0;
+          padding-left: 0;
+          overflow-x: auto;
+          display: inline-flex;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .points{
+          /*display: table-cell;*/
+        }
+        .points{
+          display: inline-block;
+          width:25%;
+        }
+
+        .points h3{
+          font-size: 14px !important;
+        }
+        .points h3 img{
+          height: 25px;
+          padding-right: 10px;
+          /*margin-top: -3px;*/
+        }
+
+
+        .description h3 {
+          font-size: 18px;
+        }
+        .description h4 {
+          font-size: 14px;
+        }
+        .hole_title {
+          font-size: 18px;
+          font-family: Avenir-Heavy;
+        }
+        .hole_description{
+          font-size: 16px;
+          font-family: Avenir-Book;
+        }
+        .yard_title{
+          font-size: 16px;
+          font-family: Raker-Bold;
+        }
+        #hole-map, #hole-photos{
+          width: 50%;
+          float: left;
+          font-size:20px;
+        }
+      }
+
+      @media only screen and (max-width: 479px) {
+        .st2 {
+          display: block;
+          padding: 0;
+        }
+        .st1{
+          display: none;
+        }
+        .st2 img{
+          width: 100%;
+          height: 100%;
+        }
+        .st2 .row {
+          margin: 0;
+        }
+        .st2 .row .col-md-12{
+          padding: 0;
+        }
+        .divider{
+          text-align: center;
+          width:100%;
+          height: 40px;
+          font-size: 20px;
+          line-height: 2;
+          color: white;
+          background-image:url(<%= image_url "hole-selector-background.png" %>);
+          background-size: 100% 100%;
+        }
+        .description {
+          padding-top: 20px;
+          margin-bottom: 40px;
+          padding-left: 20px;
+          padding-right: 20px;
+          text-align: center;
+        }
+        .bx-next {
+            right: 25px;
+        }
+        .bx-prev {
+            left: 25px;
+        }
+        .bx-next img, .bx-prev img {
+          width: 13px;
+        }
+        .yards {
+          text-align: center;
+          width: 100%;
+          padding-right: 0;
+          overflow-x: auto;
+          display: inline-flex;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .points{
+          /*display: table-cell;*/
+          display: inline-block;
+        }
+        .points h3{
+          font-size: 13px !important;
+        }
+        .points h3 img{
+          height: 25px;
+          padding-right: 10px;
+          /*margin-top: -3px;*/
+        }
+
+        /*.map-slecter {
+          left:35%;
+          top:40px;
+        }*/
+        .map-slecter {
+          display: none;
+        }
+
+        .description h3 {
+          font-size: 16px;
+        }
+        .description h4 {
+          font-size: 13px;
+        }
+        .hole_title {
+          font-family: Avenir-Heavy;
+        }
+        .hole_description{
+          font-family: Avenir-Book;
+        }
+        .yard_title{
+          font-family: Raker-Bold;
+        }
+        #hole-map ,#hole-photos{
+          width: 50%;
+          float: left;
+          font-size:20px;
+        }
+      }
+
+</style>

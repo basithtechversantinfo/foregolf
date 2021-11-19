@@ -1,0 +1,146 @@
+$('.hole-info-div').html('<%= j render("hole_information") %>');
+if ($('#hole-vid').length == 0){
+  var player = videojs('home-vid');
+  player.dispose();
+  $(".player-container").remove();
+  $(".main-container").prepend("<%= j render partial: 'course_holes_video_container' %>");
+  var videoList = []
+  for (var i = 0, len = gon.videos_urls.length; i < len; i++) {
+    videoList.push({
+      sources: [{
+        src: gon.videos_urls[i],
+        type: 'video/mp4'
+      }],
+      poster: gon.image_urls[i]
+    });
+  }
+  var player = videojs('hole-vid', {
+    controls: true, fluid:true,
+    'playbackRates': [0.5, 1, 1.5, 2],
+    abr: {enable: true},
+    controlBar: {
+      children: {
+        'playToggle':{},
+        'progressControl':{},
+        'volumeMenuButton':{},
+        'volumePanel': {inline: false},
+        'playbackRateMenuButton':{},
+        'fullscreenToggle':{}
+      }
+    }
+  });
+
+  try {player.volume(1);} catch (e) {}
+  player.playlist(videoList);
+  player.playlist.autoadvance(0);
+  player.playlist.currentItem(<%= (params[:hole_num].to_i) - 1%>);
+  if(localStorage.getItem("hole_auto_play") == "true"){
+    player.play();
+    localStorage.setItem("hole_auto_play", false);
+  }
+
+  player.on('play', function(){
+    var current_src = player.currentSrc();
+    var playing_item = $("ul.playlist_thumb").find("[data-current-src='" + current_src + "']");
+    $("li.playing").removeClass('playing');
+    playing_item.addClass('playing');
+  });
+
+  player.on('ended', function(){
+    $("li.playing").removeClass('playing');
+  });
+
+  $('.playlist_items').on('click', function(){
+    var clicked_item = $(this).attr('data-video-index');
+    var player = videojs('home-vid');
+    player.playlist.currentItem(parseInt(clicked_item));
+    player.play();
+  });
+
+  $(".hole-number").click(function(){
+    logoImage = $(this).attr('hole_image');
+    logoHyperlink = $(this).attr('logo_hyperlink');
+  })
+
+  // document.querySelector('.previous').addEventListener('click', function() {
+  //   player.playlist.previous();
+  // });
+  // document.querySelector('.next').addEventListener('click', function() {
+  //   player.playlist.next();
+  // });
+
+  document.querySelector('.slider-bg-prev').addEventListener('click', function() {
+    player.playlist.previous();
+  });
+  
+  document.querySelector('.slider-bg-right').addEventListener('click', function() {
+    player.playlist.next();
+  });
+
+
+$(document).ready(function() {
+  bgcolor = $('.player-container').attr('progress-color');  
+  progressColor(bgcolor);
+});
+
+
+  $('.player-container').hover(
+    function(event){
+      bgcolor = $(this).attr('progress-color');
+      showBars();
+      progressColor(bgcolor);
+    }, function(){
+      if (!player.paused()){
+        hideBars();
+      }
+    }
+  );
+
+
+  player.on("userinactive",function () {
+    if (!player.paused()){
+      hideBars();
+    }
+  });
+
+  player.on("useractive",function () {
+      showBars();
+      clearTimeout(timer);
+  });
+  var timer;
+
+  player.on("loadedmetadata",function () {
+    id = player.playlist.currentItem();
+    var j = id+1;
+    $('li#'+j+' a').trigger('click');
+    if($(window).width() < 760 && player.paused()){
+      showPlayerActions();
+    }else{
+      showBars();
+    }
+    timer = setTimeout(function(){hideBars()}, 5000);
+    $('.vjs-volume-panel').removeClass('vjs-hidden');
+    $('.vjs-mute-control').removeClass('vjs-hidden');
+    $('.vjs-volume-control').removeClass('vjs-hidden');
+  });
+}else{
+  var player = videojs('hole-vid');
+  player.playlist.currentItem(<%= (params[:hole_num].to_i - 1)%>);
+  $("#hole_num").html("<%= @hole.hole_num.ordinalize.tr('0-9', '').upcase %>")
+  $("#hole").html("<%= @hole.hole_num %>");
+  $("#par").html("<%= @hole.total_pars %>");
+  $("#yard").html("<%= @hole.total_yards %>");
+  $("#mhcp").html("<%= @hole.total_hcps %>");
+}
+$("li.active").removeClass('active');
+$(".hole-home").removeClass('active');
+$("#<%= (params[:hole_num])%>").addClass('active');
+if(mobilecheck()){
+  $('button.vjs-playback-rate').on('click touchstart',function(){
+    $('.vjs-menu').css({"display":"block"})
+    $('.vjs-menu').removeClass('hide')
+  });
+  $('.vjs-menu-item').on('click touchstart',function(){
+    $('.vjs-menu').addClass('hide')
+  });
+}

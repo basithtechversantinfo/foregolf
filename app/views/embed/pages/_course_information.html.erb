@@ -1,0 +1,1421 @@
+<% if @videos_urls.size > 1 %>
+  <div class="sld-pad">
+    <div class="description sld2-np divider-course">
+      <div class="clearfix"></div>
+      <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12">
+        <h3><b class="home_title" style="position: inherit;">Playlist</b></h3>
+      </div>
+      <div class="clearfix"></div>
+      <ul id="playlist-thumb" class="slider slider-nav playlist_thumb" style="margin-bottom: 0px; padding-bottom: 15px;">
+        <% @course.playlist_items.each_with_index do |video, index| %>
+          <li data-current-src="<%= video.get_src_url((is_mobile? ? 'mobile' : 'medium').to_sym) %>" class="playlist_items" data-video-index="<%= index %>">
+            <div>
+              <%= image_tag video.thumbnail_image.url.gsub("http", "https") %>
+              <a href="javascript:void(0)">
+                <%= image_tag "big-play.png", :class => "play_btn" %>
+              </a>
+            </div>
+            <span><%= video.title %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>
+<% unless @course.hide_about_course %>
+  <div class="row description divider-course">
+      <div class="col-md-12 about">
+          <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12">
+            <h3><b class="home_title">About the Course</b></h3>
+          </div>
+          <div class="col-md-12 bio">
+            <h4 class="hole_description"><%= @course.bio %></h4>
+          </div>
+      </div>
+  </div>
+<% end %>
+<div class="row slider description hide-scorecard" style="padding-top: 5px;">
+  <div class="col-md-12 col-xs-12 col-sm-12 st1">
+    <div class="row scorecard-row">
+      <div class="col-md-6 col-sm-12 col-lg-6 col-xs-12">
+        <h3 style="display:inline-block;"><b class="home_title">Scorecard</b></h3>
+        <div class="actual-scorecard">
+          <a href= "#" data-toggle="modal" data-target="#modal_scorecard" style="text-decoration:none;font-family: Avenir;font-size: 14px;color:<%=color_selector(@course.color_selector)%>">View</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="map-desk" class="map-scorecard row">
+      <div class="stat-container">
+        <div class="col-xs-5 col-sm-3 col-md-2 col-lg-2 select-container">
+          <div class="btn-group">
+           
+            <%if @teename.size > 0%>
+              <button type="button" class="btn btn-default dropdown-toggle tee-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="text-align: left;padding-left: 5px;margin-left: 7px;" >
+                <%= image_tag "tees/#{@teename[0][2]}.png" , :class => "img_preview" %><span class="teename-caret"><%=@teename[0][0]%></span>
+                <i class="caret"></i>
+              </button>
+            <%end%>
+
+            <ul class="dropdown-menu" style="left: 6px;">
+              <% @teename.each do |teename|%>
+                <li class="tees" value="<%=teename[1]%>" course_id="<%=@course.id%>">
+                  <%= image_tag "tees/#{teename[2]}.png" %><span><%=teename[0]%></span>
+                </li>
+              <% end %>
+            </ul>
+
+          </div>
+        </div>
+        <% score = @score_cards.first%>
+        <ul class="col-xs-7 col-sm-9 col-md-10 col-lg-10 scorecard ">
+          <%if score%>
+            <%= render 'course_specs', score_card: score%>
+          <%end%>
+        </ul>
+      </div>
+    </div>
+    <div id="cover-scorecard">
+      <div id="scorecard_updated">
+        <%if score%>
+          <%= render 'scorecard_updated_data', score_card: score %>
+        <%end%>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="clearfix"></div>
+
+<div style= "position: relative;">
+<div class= "slider-bg-color"> </div>
+<div class="slider-bg-color-right"> </div>
+<ul id="slider" class="bxslider"> 
+  <% @course.course_images.each do | courseimage | %>
+    <li><%=image_tag courseimage.photo.url.gsub("http", "https") %></li>
+  <% end%>
+</ul>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(sliderInitializer);
+
+
+  function sliderInitializer (){
+    var slider = $('.bxslider').bxSlider({
+      mode: 'horizontal',
+      useCSS: false,
+      pager: false,
+      nextText: '<%= image_tag "right.png", class: 'right-arrow-hover'%>',
+      prevText: '<%= image_tag "left.png", class: 'left-arrow-hover' %>'
+     });
+
+    $('.slider-bg-color-right').click(function() {
+      slider.goToNextSlide();
+    });
+
+    $('.slider-bg-color').click(function() {
+      slider.goToPrevSlide();
+    });
+
+    return slider;
+  }
+
+  $(document).ready(function(){
+    if(<%= @course.resort.hide_score_card == true%>){
+      $(".hide-scorecard").addClass("hidden");
+    }
+    $('.playlist_items').on('click', function(){	  
+      var clicked_item = $(this).attr('data-video-index');
+      var player = videojs('home-vid');
+      player.playlist.currentItem(parseInt(clicked_item));
+      player.play();
+    });
+
+    $(".right-arrow-hover").mouseover(function(){
+      $(".slider-bg-color-right").css("background-image", "linear-gradient(to right, rgba(0,0,0,0), rgba(0, 0, 0, 0.15))");
+    });
+
+    $(".right-arrow-hover").mouseout(function(){
+      $(".slider-bg-color-right").css("background-image", "none");
+    });
+
+    $(".left-arrow-hover").mouseover(function(){
+      $(".slider-bg-color").css("background-image", "linear-gradient(to right, rgba(0, 0, 0, 0.15), rgba(0,0,0,0))");
+    });
+
+    $(".left-arrow-hover").mouseout(function(){
+      $(".slider-bg-color").css("background-image", "none");
+    });
+
+    
+    $('#playlist-thumb').slick({
+      infinite: true,
+      slidesToShow: 3,
+      centerMode: false,
+      slidesToScroll: 1,
+      dots: true,
+      focusOnSelect: true,
+      variableWidth: true,
+
+      responsive: [
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 3,
+        }
+      },
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: 2,centerMode: true
+        }
+      },
+      {
+        breakpoint: 767,
+        settings: {
+          slidesToShow: 2,centerMode: true
+        }
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,centerMode: true
+        }
+      }
+        // You can unslick at a given breakpoint now by adding:
+        // settings: "unslick"
+        // instead of a settings object
+      ]
+    });
+  })
+
+  $(".tees").click(function(){
+     ImageSrc = $(this).children().attr('src');
+     TeeName = $(this).text().replace(/\s/g, '');
+     $('.tee-dropdown .img_preview').attr('src', ImageSrc);
+     $('.tee-dropdown span').text(TeeName);
+     scoreCard = $(this).val();
+     courseId = $(this).attr('course_id');
+     $.ajax("/embed/pages/update_tee_scorecard", {
+       type: "POST",
+       data: {
+         sid: scoreCard,
+         cid: courseId
+       },
+     })
+  });
+
+  $('#select_map').click(function (){
+    bgColor=$(this).attr('color');
+    $('.st1 .bx-wrapper').css({"display":"none"});
+    // $('#slider').hide();
+    $('#select_photos').removeClass('selected');
+    $('#select_photos').addClass('non-selected');
+    $('#select_photos').css({"background-color":"white"});
+
+    $('#map-desk').show();
+    $('#select_map').removeClass('non-selected');
+    $('#select_map').addClass('selected');
+    $('#select_map').css({"background-color":bgColor});
+    $('#actual-map').css({"display": "none"});
+
+  });
+
+  $('#select_photos').click(function (){
+    bgColor=$(this).attr('color');
+    $('#map-desk').hide();
+    $('#select_map').removeClass('selected');
+    $('#select_map').addClass('non-selected');
+    $('#select_map').css({"background-color":"white"});
+
+    $('.st1 .bx-wrapper').css({"display":"block"});
+    // $('#slider').show();
+    $('#select_photos').removeClass('non-selected');
+    $('#select_photos').addClass('selected');
+    $('#select_photos').css({"background-color":bgColor});
+    $('#actual-map').css({"display": "none"});
+    
+  });
+  
+  $('#hole-map').click(function (){
+    bgColor=$(this).attr('color');
+    // $('.st1 .bx-wrapper').hide();
+    // $('#22').hide();
+    $('#44').invisible();
+    
+    $('#hole-photos').removeClass('set');
+    $('#hole-photos').addClass('unset');
+    $('#hole-photos').css({"border-bottom": "4px solid black"});
+    // $('#hole-photos').css({"background-color":"white"});
+
+    $('#map').show();
+    $('#hole-map').removeClass('unset');
+    $('#hole-map').addClass('set');
+    $('#hole-map').css({"border-bottom": "4px solid" + bgColor});
+
+  });
+
+  $('#hole-photos').click(function (){
+    bgColor=$(this).attr('color');
+    $('#map').hide();
+    $('#hole-map').removeClass('set');
+    $('#hole-map').addClass('unset');
+    $('#hole-map').css({"border-bottom": "4px solid black"});
+    // $('#hole-map').css({"background-color":"white"});
+
+
+    $('#hole-photos').removeClass('unset');
+    $('#hole-photos').addClass('set');
+    $('#hole-photos').css({"border-bottom": "4px solid" + bgColor});
+
+    // $('.st1 .bx-wrapper').show();
+    // $('#22').show();
+    $('#44').visible();
+   
+    // $('#select_photos').removeClass('non-selected');
+    // $('#select_photos').addClass('selected');
+
+  });
+
+  (function($) {
+      $.fn.invisible = function() {
+          return this.each(function() {
+              $(this).css("visibility", "hidden");
+          });
+      };
+      $.fn.visible = function() {
+          return this.each(function() {
+              $(this).css("visibility", "visible");
+          });
+      };
+  }(jQuery));
+
+
+  $(document).ready(function() {
+    $('#select_photos').trigger('click');
+    $('#hole-map').trigger('click');
+  });
+  // $(document).ready(function() { $('#select_photos').trigger('click') });
+  // $(document).ready(function() { setTimeout (function() { $('#select_map').trigger('click') }, 500)});
+
+
+</script>
+<style type="text/css">
+.slick-disabled{
+  visibility: hidden;
+}
+.slick-slide{
+  width: 330px !important;
+}
+.slick-next{
+  margin-top: -25px !important;
+}
+.scorecard-row{
+  padding-top: 15px;
+}
+.slop-right-border{
+  border-right: 0px !important;
+}
+.course-divider{
+  border-bottom: solid 2px #f5f5f5;
+  width: 99%;
+}
+.divider-course{
+  border-bottom: solid 2px #f5f5f5;
+}
+.modal_scorecard_image{
+  width: 100%;
+}
+#actual-map{
+  display:none;
+}
+.stat-container{
+  margin-left: 160px;
+}
+.topborder {
+    min-height: 30px;
+    /*margin-top: 10px;*/
+    margin-right: 27px;
+}
+.score-specs{
+  width: 100%;
+  padding: 0 10px;
+  color: #777;
+  /*border-top: solid 1px #e5e5e5;*/
+}
+.table tr{
+  line-height: 2.5;
+}
+.rowstart{
+  text-align: center;
+  font-weight: 700;
+  line-height: 3;
+  width: 3%;
+}
+.rowcolumns{
+  width: 3%;
+  text-align: center;
+  min-width: 30px;
+}
+.scorecard{
+  display: inline-block;
+  width: 400px;
+  margin: 7px 0 0 -64px;
+  vertical-align: inherit;
+}
+.scorecard li{
+  border-right: solid 1px #e5e5e5;
+  display: table-cell;
+  text-align: center;
+  width: 90px;
+}
+.scorecard li span{
+  font-size: 16px;
+  border-bottom: none;
+  font-weight: 700px;
+  color: #777;
+  font-family: Avenir-heavy;
+}
+.scorecard li p{
+  font-size: 12px;
+  font-family: Avenir;
+  margin-top: 0px;
+  margin-bottom: 0px !important;
+  color: #a29e9e;
+}
+#teename {
+  display: block !important;
+  border: 0px;
+  box-shadow: none;
+}
+.caddies{
+  /*width: 50px;*/
+  height: 35px;
+}
+.carts {
+  /*width: 50px;*/
+  height: 35px;
+}
+.practice-range{
+  /*width: 50px;*/
+  height: 35px;
+}
+.golfboard {
+  /*width: 50px;*/
+  height: 35px;
+}
+.restaurant{
+  /*width: 50px;*/
+  height: 35px;
+  /*height: Auto;*/
+  /*padding-right:5px; */
+}
+.bio {
+  padding-right: 100px;
+}
+.architect {
+  padding-left: 30px;
+}
+
+.st2 {
+  display: none;
+}
+.st1 {
+  padding: 0;
+}
+.row.slider .col-md-12.st1 {
+    position: relative;
+    z-index: 99;
+}
+h3, h4 {
+  margin: 0;
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+h3 {
+  font-size: 20px;
+}
+
+h4 img {
+  margin-right: 15px;
+}
+.selected{
+  background: black;
+  color: white !important;
+}
+.non-selected{
+  background: white;
+  color: black;
+}
+.map-slecter {
+  position: absolute;
+  z-index: 11;
+  left:42%;
+  top:50px;
+}
+.set{
+  color: white !important;
+  line-height: 20px;
+  outline: none !important;
+  background: black;
+  height: 100%;
+}
+.unset{
+  opacity: 0.4;
+  background: black;
+  height: 100%;
+}
+.map-scorecard{
+    width: 100%;
+    margin: auto;
+    position: relative;
+}
+.actual-scorecard {
+    padding: 0px 17px;
+    font-weight: 300;
+    display: inline-block;
+    vertical-align: baseline;
+    font-size: 12px;
+}
+.map-scorecard .stat-container {
+    margin-left: 0px;
+    clear: both;
+    padding-top: 15px;
+    /*border-top: solid 1px #e5e5e5;*/
+    width: 100%;
+}
+.score-specs tbody > tr:first-child td {
+  padding-top: 20px;
+}
+.score-specs tbody > tr:last-child td {
+  padding-bottom: 10px;
+}
+/*table.score-specs tr:first-child td {
+    color: rgb(11, 132, 165);
+}*/
+table.score-specs tr:nth-child(2) td  {
+  background: #f6f6f6;
+}
+.map-scorecard .topborder {
+    margin-left: 0px;
+    padding: 9px;
+    border-bottom: solid 1px #e5e5e5;
+}
+#actual-map{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+}
+#actual-map li img{
+  width: 100%;
+  height: 100%;
+}
+#slider {
+  position: absolute;
+}
+#map li img {
+  width: 100%;
+  height: 100%;
+}
+
+.bxslider {
+    list-style:none;
+    margin:0;
+    padding:0
+}
+
+.bxslider li img {
+  width: 100%;
+  height: 100%;
+}
+
+.bx-next, .bx-prev {
+  position: absolute;
+  top: 48%;
+  width: 17px;
+  z-index: 101;
+}
+.bx-next img, .bx-prev img{
+  width: 17px;
+}
+.bx-next {
+  right: 58px;
+}
+.bx-prev {
+  left: 58px;
+}
+.description {
+  width: 100%;
+  padding-left: 50px;
+  font-family: 'Avenir', serif;
+}
+.description2 {
+  width: 100%;
+  font-family: 'Avenir', serif;
+}
+.specs{
+  text-align: left;
+  /*padding-top: 30px;*/
+  /*padding-right: 60px;*/
+}
+
+.values {
+    display: inline-table !important;
+    width: 30%;
+    vertical-align: text-top;
+}
+.amenity {
+    width: 100%;
+    padding-right: 0px;
+    display: inline-flex;
+    padding-right: 0px;
+}
+.amenity img {
+    height: 30px;
+    display: inline-block;
+    float: left;
+    margin-right: 15px;
+}
+.amenity h4{
+  margin: 5px 0px 0px 7px !important;
+}
+.points h3 img {
+  padding-bottom: 5px;
+
+}
+.responsive{
+  padding-top: 15px;
+  padding-bottom: 30px;
+  display: inline-flex;
+}
+.item{
+  width: auto;
+  padding-right: 50px
+}
+.course_specs{
+  overflow-x: auto;
+  display: inline-flex;
+  -webkit-overflow-scrolling: touch;
+}
+.justify{
+  text-align: justify;
+}
+.slider {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+}
+.slider h3 {
+  padding-left: 15px;
+}
+.slick-prev, .slick-next {
+    width: 20px;
+    height: 40px !important;
+}
+.slick-prev:before, .slick-next:before,
+.slick-dots {
+    display:none !important;
+}
+.slick-next, .slick-next:hover, .slick-next:focus {
+    background: url('data:image/svg+xml;utf8,<svg version="1.1" id="Layer_1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink" x="0px" y="0px" width="19px" viewBox="0 0 15.225 26.936" enable-background="new 0 0 15.225 26.936" xml:space="preserve"><path fill-rule="evenodd" clip-rule="evenodd" fill="<%=color_selector(@course.color_selector)%>" d="M2.561,0.439c-0.586-0.586-1.535-0.586-2.121,0c-0.585,0.585-0.585,1.535,0,2.121l11.165,11.164L0.953,24.375c-0.586,0.586-0.586,1.536,0,2.121c0.586,0.586,1.535,0.586,2.121,0l11.711-11.711c0.586-0.586,0.586-1.535,0-2.121L2.561,0.439z"/></svg>') no-repeat;
+    right: -19px;
+}
+.slick-prev,.slick-prev:focus, .slick-prev:hover {
+    background: url('data:image/svg+xml;utf8,<svg version="1.1" id="Layer_1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink" x="0px" y="0px" width="19px" viewBox="0 0 15.225 26.936" enable-background="new 0 0 15.225 26.936" xml:space="preserve"><path fill-rule="evenodd" clip-rule="evenodd" fill="<%=color_selector(@course.color_selector)%>" d="M12.664,0.439c0.586-0.586,1.535-0.586,2.121,0 c0.585,0.585,0.585,1.535,0,2.121L3.62,13.725l10.651,10.65c0.586,0.586,0.586,1.536,0,2.121c-0.586,0.586-1.535,0.586-2.121,0 L0.439,14.785c-0.586-0.586-0.586-1.535,0-2.121L12.664,0.439z"/></svg>') no-repeat;
+        right: -19px;
+}
+.slick-track {
+    margin-left: 0px !important;
+}
+.select-container {
+    width: 210px;
+}
+#scorecard_updated {
+  width: 100%;
+}
+#cover-scorecard {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 99;
+}
+.dropdown-menu li{
+  padding: 6px 0px;
+  cursor: pointer;
+}
+
+.dropdown-menu li img{
+  width: 36px;
+  padding: 0px 10px;
+}
+.stat-container .btn-group .dropdown-toggle img{
+  width: 21px;
+  padding-right: 5px;
+  vertical-align: sub;
+}
+.stat-container .btn-group .dropdown-toggle{
+  width: 170px;
+  border: none;
+  color: #777;text-transform: uppercase;
+  font-family: 'Avenir'
+}
+.stat-container .btn-group .dropdown-menu{
+    max-height: 200px;
+    overflow: auto;
+}
+.modal-dialog {
+    max-width: 75%;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%) !important;
+}
+.bx-wrapper {
+  position: relative;
+}
+/*.bx-controls {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+}*/
+.tee-rows td, .rowstart{
+  font-family: Avenir-heavy;
+  font-size: 14px;
+}
+.updated-rows .rowcolumns{
+  font-family: Avenir;
+  font-size: 14px;
+}
+.mobile-scroll {
+    /*border-bottom: solid 1px #e5e5e5;*/
+    margin-bottom: 5px;
+    overflow-x: auto;
+    display: inline-block;
+    white-space: nowrap;
+    width: 100%;
+    margin-left: 5px;
+}
+/*// 320, 480, 760, 960, 1200 and 1600px.*/
+      @media only screen and (min-width: 250px) and (max-width: 349px) {
+        .playlist_thumb li{
+          padding-right: 20px !important;
+        }
+      }
+      @media only screen and (min-width: 1600px) {
+        .description {
+          padding-top: 50px;
+          /*margin-bottom: 50px;*/
+          padding-left: 45px;
+        }
+        .specs, .description2 {
+          margin-top: 20px;
+        }
+        .values {
+          width: auto;
+          padding-right: 50px;
+        }
+        .values h4 {
+          font-weight: normal;
+        }
+
+
+      }
+
+      @media only screen and (max-width: 1360px) {
+        .map-scorecard {
+          width: 1297px;
+        }
+      }
+
+      @media only screen and (max-width: 1599px) and (min-width: 1200px) {
+        .description {
+          padding-top: 30px;
+          /*margin-bottom: 30px;*/
+          padding-left: 15px;
+        }
+        /*.description h4{
+          font-size: 15px;
+        }*/
+        .bx-next img, .bx-prev img {
+          width: 17px;
+        }
+        .pp {
+          width: 26%;
+        }
+        .specs {
+          margin-top: 20px;
+        }
+        .values {
+          width: auto;
+          padding-right: 50px;
+        }
+        .values h4 {
+          font-weight: normal;
+        }
+      }
+      @media (max-width: 1199px) {
+        .amenity{
+          display: inline-flex !important;
+        }
+      }
+      @media (max-width: 991px) {
+        .amenity{
+          display: block !important;
+        }
+      }
+      @media only screen and (min-width: 1199px) {
+          .modal-dialog {
+              transform: translateY(-56%) !important;
+          }
+      }
+
+      @media only screen and (max-width: 1199px) and (min-width: 992px) {
+        .description {
+          padding-top: 30px;
+          padding-left: 45px;
+        }
+        /*.description h4{
+          font-size: 13px;
+        }*/
+        .description h3{
+          font-size: 20px;
+        }
+        .description2 h3{
+          font-size: 20px;
+        }
+        .pp {
+          width:26%;
+        }
+        .bx-next img, .bx-prev img {
+          width: inherit;
+        }
+        .specs{
+          margin-top: 20px;
+        }
+        .values {
+          width: auto;
+          padding-right: 50px;
+        }
+        .values h4 {
+          font-weight: normal;
+        }
+        .map-slecter {
+          left: 40%;
+        }
+
+      }
+
+@media only screen and (max-width: 1024px) {
+      .scorecard-row{
+        padding-top: 0px;
+      }
+      .amenity img {
+          float: none;
+          margin-right: 0px;
+      }
+      .amenity {
+          display: block;
+          text-align: center;
+      }
+      .map-scorecard .stat-container {
+          border-top: 0px;
+      }
+      .map-scorecard .topborder {
+          border: 0px;
+          margin-top: 0px;
+          padding-top: 0px;
+      }
+      /*.x {
+        height: 55px;
+        margin-top: 0%;
+      }*/
+      .slider h3 {
+        padding-left: 72px;
+        border-top: 1px solid #e5e5e5;
+        padding-top: 20px;
+        width: 100%;
+        margin-bottom: 30px;
+      }
+      .slider h3 b.home_title{
+        margin-left: -40px;
+      }
+      .slider .row > .col-md-6 {
+          clear: both;
+          padding: 0px 30px;
+      }
+      .score-specs {
+          margin-top: 0px;
+      }
+
+      .rowcolumns {
+          min-width: 58px;
+      }
+      .description2 {
+          /*border-bottom: solid 1px #e5e5e5;*/
+         /* padding-bottom: 30px;*/
+      }
+      .slider h3 {
+        width: auto;
+        border-top: 0px;
+        margin-bottom: 0px;
+      }
+      .description {
+          margin-bottom: 0px;
+      }
+}
+
+      @media only screen and (max-width: 991px) and (min-width: 760px) {
+        .st2 {
+          display: block;
+          padding: 0;
+        }
+        .st2 .row {
+          margin: 0;
+        }
+        .st2 .row .col-md-12{
+          padding: 0;
+        }
+
+        .st2 img{
+          width: 100%;
+          height: 100%;
+        }
+        .divider{
+          text-align: center;
+          width:100%;
+          height: 45px;
+          font-size: 20px;
+          line-height: 2;
+          color: white;
+          background-image:url(<%= image_url "hole-selector-background.png" %>);
+          background-size: 100% 100%;
+        }
+        .description {
+          text-align: center;
+          padding-top: 30px;
+          padding-left: 30px;
+          padding-right: 30px;
+          margin-left: 0px;
+          margin-right: 0px;
+        }
+        .bio {
+          padding-right: 10px;
+        }
+        .bx-next{
+          right: 33px;
+        }
+        .bx-prev{
+          left: 33px;
+        }
+        .bx-next img, .bx-prev img {
+          width: 13px;
+        }
+         .specs {
+          text-align: center;
+          width: 100%;
+          display: table;
+          table-layout: fixed;
+          padding-right: 0;
+          padding-left: 0;
+          padding-bottom: 20px;
+          border-bottom: 2px solid lightgrey;
+          margin-bottom: 20px;
+        }
+        .amenity-wrap {
+         /*padding-bottom: 30px;*/
+        }
+
+        .description2 {
+          text-align: center;
+          padding-left: 0px;
+          padding-right: 0px;
+        }
+
+
+        .points{
+          display: table-cell;
+        }
+        .map-slecter {
+          left:37%;
+          top:50px;
+        }
+        .about h3, .specs h3, .description2 h3{
+          min-height: 25px;
+        }
+        .home_title {
+          left: 50%;
+          position: absolute;
+        }
+        .about .home_title {
+          margin-left: -75px;
+        }
+        .specs .home_title {
+          margin-left: -56px;
+        }
+        .description2 .home_title {
+          margin-left: -42px;
+        }
+        .responsive{
+          overflow-x: auto;
+          display: inline-flex;
+          white-space: nowrap;
+          width: 85%;
+          -webkit-overflow-scrolling: touch;
+        }
+        .item{
+          display: inline-table;
+          width: 130px;
+          margin-left: 42px;
+        }
+        .amenity h4{
+          padding-bottom: 20px;
+        }
+        #hole-map, #hole-photos{
+          width: 50%;
+          float: left;
+          font-size:20px;
+          /*background: black;*/
+        }
+        .scorecard-row h3{
+          position: static !important;
+        }
+        .scorecard-row .actual-scorecard{
+          padding: 0px 50px;
+          position: absolute;
+          top: 25px;
+          right: 0;
+        }
+      }
+      @media only screen and (max-width: 759px) {
+
+        .modal-dialog {
+            transform: translate(-53%, -50%) !important;
+            left: 50%;
+        }
+        .slider h3 {
+          margin-bottom: 30px;
+        }
+      }
+      @media only screen and (max-width: 768px) {
+
+        .scorecard-row h3 {
+            margin-bottom: 30px;
+            display: block !important;
+        }
+      }
+      @media only screen and (max-width: 759px) and (min-width: 480px) {
+        .teename-caret{
+          display:none;
+        }
+        .st2 {
+          display: block;
+          padding: 0;
+        }
+        .st2 .row {
+          margin: 0;
+        }
+        .st2 .row .col-md-12{
+          padding: 0;
+        }
+
+        .st2 img{
+          width: 100%;
+          height: 100%;
+        }
+        .divider{
+          text-align: center;
+          width:100%;
+          height: 45px;
+          font-size: 20px;
+          line-height: 2;
+          color: white;
+          background-image:url(<%= image_url "hole-selector-background.png" %>);
+          background-size: 100% 100%;
+        }
+        .description {
+          padding-top: 30px;
+          margin-left: 0px;
+          padding-left: 50px;
+          padding-right: 50px;
+          text-align: center;
+        }, .specs{
+          padding-bottom: 20px;
+          margin-bottom: 20px;
+        }
+        .bio {
+          padding-left: 0px;
+          padding-right: 0px;
+        }
+        .pp {
+          width: 40%;
+        }
+        .amenity-wrap{
+          padding-bottom: 15px;
+        }
+        .amenity h4{
+          padding-bottom: 20px;
+          margin: 5px 0px 0px 4px !important;
+        }
+        .description h4{
+          font-size: 14px;
+        }
+        .description h3{
+          font-size: 17px;
+        }
+        .description2 h3{
+          font-size: 17px;
+        }
+        .bx-next img, .bx-prev img {
+          width: inherit;
+        }
+        .specs {
+          text-align: center;
+          width: 100%;
+          display: table;
+          table-layout: fixed;
+          padding-right: 0;
+          padding-left: 0;
+        }
+        .points{
+          display: table-cell;
+        }
+
+        /*.map-slecter {
+          left:35%;
+          top:40px;
+        }*/
+        .map-slecter {
+          display: none;
+        }
+        .description h3 {
+          font-size: 18px;
+        }
+        .description h4 {
+          font-size: 14px;
+        }
+        .about h3, .specs h3, .description2 h3{
+          min-height: 25px;
+        }
+        .home_title {
+          left: 50%;
+          position: absolute;
+        }
+        .about .home_title {
+          margin-left: -75px;
+        }
+        .specs .home_title {
+          margin-left: -56px;
+        }
+        .description2 .home_title {
+          margin-left: -42px;
+        }
+        #hole-map, #hole-photos{
+          width: 50%;
+          float: left;
+          font-size:20px;
+          /*background: black;*/
+        }
+        .responsive{
+          overflow-x: auto;
+          display: inline-flex;
+          white-space: nowrap;
+          width:90%;
+          margin-left: 4px;
+        }
+        .item{
+          display: inline-table;
+          width: 138px;
+        }
+        .description2{
+              padding-left: 0px;
+              padding-right: 0px;
+        }
+        .amenity-wrap{
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        /*.divider .unset{ border-bottom: 4px solid transparent !important; line-height: 20px;}*/
+        .course_specs .values.architect-value {
+          width:50%;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+        .scorecard-row h3{
+          position: static !important;
+        }
+        .scorecard-row .actual-scorecard{
+          padding: 0px 50px;
+          position: absolute;
+          top: 25px;
+          right: 0;
+        }
+      }
+
+      @media only screen and (max-width: 479px) {
+
+        .dropdown-menu { 
+          min-width: 142px; 
+          left: 30px;
+         }
+
+        .scorecard { display: block; width: 380px;}
+
+        .scorecard li { display: inline-block; }
+
+        .divider-course{
+          width: 100% !important;
+        }
+        .topborder{
+          margin-right: 0px;
+        }
+        .teename-caret{
+          display:none;
+        }
+        .st2 {
+          display: block;
+          padding:0;
+        }
+        .st2 img{
+          width: 100%;
+          height: 100%;
+        }
+        .st2 .row {
+          margin: 0;
+        }
+        .st2 .row .col-md-12{
+          padding: 0;
+        }
+
+        .divider{
+          text-align: center;
+          width:100%;
+          height: 45px;
+          font-size: 20px;
+          line-height: 2;
+          color: white;
+          background-image:url(<%= image_url "hole-selector-background.png" %>);
+          background-size: 100% 100%;
+        }
+        .description {
+          padding-top: 20px;
+          margin-left: 0px;
+          padding-left: 0px;
+          text-align: center;
+        }
+        .bio {
+          padding-left: 0px;
+          padding-right: 0px;
+        }
+        .specs {
+          padding-bottom: 20px;
+          border-bottom: 1px solid lightgrey;
+          margin-bottom: -20px;
+        }
+        .description2 {
+          padding-left: 50px;
+          padding-right: 50px;
+          text-align: center;
+        }
+
+        .caddies{
+          /*width: 30px;*/
+          height: 40px;
+        }
+        .carts {
+          /*width: 40px;*/
+          height: 40px;
+        }
+        .practice-range{
+          /*width: 35px;*/
+          height: 40px;
+        }
+        .golfboard {
+          /*width: 50px;*/
+          height: 40px;
+        }
+        .amenity-wrap{
+          padding-bottom: 16px;
+        }
+        .amenity h4{
+          padding-bottom: 20px;
+          margin: 5px 0px 0px 4px !important;
+        }
+        .description h4{
+          font-size: 13px;
+        }
+        .description h3{
+          font-size: 17px;
+        }
+        .description2 h4{
+          font-size: 13px;
+        }
+        .description2 h3{
+          font-size: 17px;
+        }
+        .bx-next img, .bx-prev img {
+          width: 13px;
+        }
+        .bx-prev{
+          left: 25px;
+        }
+        .bx-next {
+          right: 25px;
+        }
+        .bx-prev, .bx-next {
+            margin-top: -15px;
+        }
+        .specs {
+          text-align: center;
+          width: 100%;
+        }
+
+        .points{
+          /*display: table-cell;*/
+          display: inline-block;
+        }
+
+        /*.map-slecter {
+          left:35%;
+          top:40px;
+        }*/
+        .map-slecter {
+          display: none;
+        }
+
+        .description h3 {
+          font-size: 15px;
+        }
+        .description h4 {
+          font-size: 13px;
+        }
+        .home_title {
+          font-family: Avenir-Heavy;
+          left: 50%;
+          position: absolute;
+          font-size: 15px !important;
+        }
+        .about .home_title {
+          margin-left: -62.5px;
+        }
+        .specs .home_title {
+          margin-left: -47px;
+        }
+        .description2 .home_title {
+          margin-left: -42px;
+        }
+        .hole_description{
+          font-family: Avenir-Book;
+        }
+        .about h3, .specs h3, .description2 h3{
+          min-height: 25px;
+        }
+        .slick-next, .slick-next:hover, .slick-next:focus {
+            right: -45px;
+        }
+        .slick-prev, .slick-prev:focus, .slick-prev:hover {
+            left: -45px;
+        }
+        #hole-map, #hole-photos{
+          width: 50%;
+          float: left;
+          font-size:20px;
+          /*background: black;*/
+        }
+        .responsive{
+          overflow-x: auto;
+          display: inline-flex;
+          white-space: nowrap;
+          width: 100%;
+        }
+        .hole-info-div {
+            overflow-x: hidden;
+            padding-left: 15px;
+        }
+        .item{
+          display: inline-table;
+          width: 110px;
+        }
+        .description2{
+              padding-left: 0px;
+              padding-right: 0px;
+        }
+        .amenity-wrap{
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        /*.divider .unset{
+            border-bottom: 4px solid transparent !important;
+            line-height: 20px;
+        }*/
+
+        .scorecard{
+          margin: 7px 0 0 -64px !important;
+        }
+        .stat-container .select-container{
+          padding: 0;
+          width: auto;
+        }
+        .stat-container .btn-group .dropdown-toggle{
+            padding: 6px 0px;
+            width: 60px;
+            padding-left: 10px !important;
+            margin-left: 30px !important;
+            z-index: 99;
+            position: relative;
+                margin-top: 6px;
+        }
+        .map-scorecard{
+          padding-left: 0px;
+        }
+        .scorecard li{
+          width: auto;
+          padding: 0px 10px;
+        }
+        .scorecard-row h3{
+          position: static !important;
+        }
+        .scorecard-row .actual-scorecard{
+          padding: 0px 50px;
+          position: absolute;
+          top: 25px;
+          right: 0;
+        }
+      }
+
+      @media only screen and (min-width: 480px) {
+        .home_title {
+          font-size: 18px;
+          font-family: Avenir-Heavy;
+        }
+        .hole_description{
+          font-size: 16px;
+          font-family: Avenir-Book;
+        }
+      }
+      @media (max-width: 400px) {
+        .item {
+          width: 87px;
+        }
+      }
+       @media (max-width: 480px) {
+        .modal-dialog {
+          left: 46%;
+
+        }
+        .hole-info-div {
+          padding-left: 1px;
+        }
+        
+      }
+  .description2{
+    padding-top: 30px;
+  }
+  .mar-lft-10{
+    margin-left: 10px;
+  }
+
+</style>

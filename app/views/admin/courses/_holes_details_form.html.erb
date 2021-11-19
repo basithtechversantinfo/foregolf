@@ -1,0 +1,58 @@
+<%#= form_for @course, url: admin_update_holes_details_path(@course), method: "post", :html => { :multipart => true } do |f|%>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.js"></script>
+  <div class="col-md-12">
+    <h4>Holes List</h4>
+  </div>
+  <div class="col-md-12">
+    <table class="table borderless holes_list">
+      <thead>
+        <th>HOLE</th>
+        <th>VIDEO</th>
+        <th>COVER</th>
+        <th>MAP</th>
+        <th>GALLERY</th>
+        <th>YARDAGES</th>
+        <th>DESCRIPTION</th>
+        <th></th>
+      </thead>
+      <tbody>
+        <% @course.holes.order("hole_num").each do |hole| %>
+          <tr id="hole_row_<%= hole.id %>">
+            <%= render 'hole_row', hole: hole %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-12 text-center pb-20">    
+    <%#= f.submit "Save", class: "btn btn-primary"%>
+    <%= link_to admin_resort_add_course_path(@course.resort), class: "btn btn-info btn-add", title: "Add another course" do %>
+      +
+    <% end %>
+
+    <%= link_to "Edit course", edit_admin_course_path(@course), class: "btn btn-primary" %>
+  </div>
+<%# end %>
+<div class="hole_yardages"></div>
+<div class="hole_images_modal"></div>
+<script type="text/javascript">
+  $(function(){
+    $(".update_yardages").on('click', function(){
+      var hole_id = $(this).attr("data-hole-id");
+      $.ajax({
+        url: "<%= admin_get_hole_yardages_path %>",
+        type: "GET",
+        data: {hole_id: hole_id}
+      });
+    });
+
+    $(".other_hole_images").on('click', function(){
+      var hole_id = $(this).attr("data-hole-id");
+      $.ajax({
+        url: "/admin/holes/"+hole_id+"/hole_images",
+        type: "GET",
+        data: {id: hole_id}
+      });
+    });
+  });
+</script>

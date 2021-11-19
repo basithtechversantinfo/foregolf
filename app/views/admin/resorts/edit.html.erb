@@ -1,0 +1,173 @@
+<div id="course-page-content-wrapper" class="col-md-12" style="margin-top: 0px;">
+  <%= form_for(@resort, url: {controller: 'resorts', action: 'update'}, method: "put" ) do |f|%>
+    <div class="col-md-12 course-info-row">
+      <div class="col-md-12">
+        <h4>Client Information</h4>
+      </div>
+      <div class="basic-course-info">
+        <div class="col-md-12 course-info-row">
+          <div class="col-md-4 form-group">
+            <%= label_tag :name ,'Name',class:"col-md-12 zero-left-right-padd"%>
+            <%= f.text_field :name , class:"col-md-12 form-control check-field", placeholder: "Full name of Client"%>
+          </div>
+          <div class="col-md-8 form-group">
+            <%= f.fields_for :location do |location_form| %>
+              <%= render 'admin/locations/form.html.erb', location_form: location_form %>
+            <% end %>
+          </div>
+        </div>
+        <div class="col-md-12 course-info-row">
+          <div class="col-md-4">
+            <%= label_tag :course_type ,'Client Type',class: "col-md-12 zero-left-right-padd" %>
+            <%= check_box_tag 'resort[resort_type]' ,'is_public', @resort.resort_type == "is_public", class: 'checkbox check-field inline', id: 'course_type_public' %>
+            <span class="inline">Public</span>
+            <div class="inline">
+              <%= check_box_tag 'resort[resort_type]' ,'is_private', @resort.resort_type == "is_private", class: 'checkbox check-field inline', id: 'course_type_private' %>
+              <span class="inline">Private</span>
+            </div>
+            <div class="inline">
+              <%= check_box_tag 'resort[resort_type]' ,'is_semi_private', @resort.resort_type == "is_semi_private", class: 'checkbox check-field inline', id: 'course_type_semi_private' %>
+              <span class="inline">Semi-Private</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <%= label_tag :course_type ,'',class:"col-md-12 zero-left-right-padd", style: "min-height: 25px;" %>
+            <%= select_tag('network', options_for_select(Network.all.pluck(:name, :id), @resort.network_id), options = {prompt: 'Network',class:'dropdown-padd dropdown form-control inline' , style: 'width:50%;' , name: 'resort[network_id]'}) %>
+            <button type="button" class="btn btn-info btn-add" id='add-network' data-toggle="modal" data-target="#new_network">+</button>
+            <%= link_to "Edit List", admin_networks_path %>
+          </div>
+          <div class="col-md-4 form-group">
+            <%= label_tag :contact_info, 'Contact Info',class:"col-md-12 zero-left-right-padd"%>
+            <%= f.text_field :website, class:"col-md-12 form-control contact-info check-field", placeholder: "Website" %>
+            <%= f.text_field :phone_num, class:"col-md-12 form-control contact-info check-field", placeholder: "Phone Number" %>
+          </div>
+          <div class="col-md-8 form-group">
+            <%= f.check_box :hide_logo %>
+            <%= label_tag :hide_logo ,'Hide Logo'%>
+          </div>
+          <div class="col-md-8 form-group">
+            <%= f.check_box :hide_about_course %>
+            <%= label_tag :hide_about_course ,'Hide About Course Info'%>
+          </div>
+          <div class="col-md-8 form-group">
+            <%= f.check_box :lead_generation %>
+            <%= label_tag :lead_generation ,'Hide Lead Generation'%>
+          </div>
+          <div class="col-md-8 form-group"> 
+            <%= f.check_box :hide_carousel %> 
+            <%= label_tag :hide_carousel ,'Hide Carousel'%> 
+          </div>  
+          <div class="col-md-8 form-group"> 
+            <%= f.check_box :hide_score_card %> 
+            <%= label_tag :hide_carousel ,'Hide Score Card'%> 
+          </div>
+
+          <div class="col-md-8 form-group">
+            <%= label_tag :fore_btn_text, 'FORE Button Text'%>
+            <%= f.text_field :fore_btn_text, class:"col-md-12 form-control contact-info check-field"%>
+          </div>
+
+          <div class="col-md-8 form-group" style="display: none;">
+            <%= f.text_field :fore_btn_background%>
+          </div>
+
+          <div class="col-md-8 form-group"> 
+            <label for="fore_btn_background">FORE Button Background</label>
+            <input type="color" id="fore_btn_background" name="fore_btn_background" value="<%= @resort.fore_btn_background.present? ? @resort.fore_btn_background : "#ff0000" %>">
+          </div>
+
+          <div class="col-md-8 form-group" style="display: none;">
+            <%= f.text_field :fore_line_color%>
+          </div>
+
+          <div class="col-md-8 form-group"> 
+            <label for="fore_line_color">FORE Line Color</label>
+            <input type="color" id="fore_line_color" name="fore_line_color" value="<%= @resort.fore_line_color.present? ? @resort.fore_line_color : "#ff0000" %>">
+          </div>
+
+          <div class="col-md-6 form-group">
+            <%= label_tag :custom_url, 'Custom URL',class:"col-md-12 zero-left-right-padd"%>
+            <%= f.text_field :lead_url, class:"col-md-12 form-control contact-info check-field", placeholder: "Custom URL"%>
+          </div>
+          
+          <div class = "col-md-6">
+            <%= label_tag :logo, "Logo Image", class:"col-md-12 zero-left-right-padd "%>  
+            <div class = "clearfix"></div>
+            <div class="btn btn-success upload-btn">
+              <div class = "logo-field">
+                <%= f.file_field :logo, class: 'check-field logo-field'%>
+              </div>
+
+              <div class="cover image-division">
+                <span class="close-cross hide">&times;</span>
+                <%= image_tag("", class: "uploaded-cover-image course-create-image hide") %>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-8 form-group">
+            <h4>Embedable Link For Client</h4>
+            <textarea style="height:90px; resize:none; padding: 10px; text-align: center; " readonly id="iframe_link" class="form-control">
+              <div class="fore-test-iframe">
+                <iframe src="<%= "#{request.base_url}/admin/resorts/#{@resort.id}/courses_list" %>" width="100%"  allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" style="height:270vh; border: none;" id="fore_videos_iframe" onload="resizeIframe(this)"> </iframe>
+              </div>
+              <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+              <script type="text/javascript" src="https://d1s5na5d5z3eyp.cloudfront.net/assets/iframeResizer.min.js"></script>
+              <script type="text/javascript">
+                iFrameResize({log: true, enablePublicMethods: true });
+              </script>
+            </textarea>
+          </div>
+          <div class="col-md-4 form-group">
+            <button class="btn btn-primary" style="margin-top: 65px;" onclick="copyText()" type="button">Copy Link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center">
+      <%= f.submit "Save", class: "btn btn-primary", style: "margin-left:20px;", id: "save_client" %>
+    </div>
+  <% end %>
+  <%= render :partial => 'admin/networks/new_modal' %>
+</div>
+<script type="text/javascript">
+  function copyText() {
+    /* Get the text field */
+    var copyText = document.getElementById("iframe_link");
+
+    /* Select the text field */
+    copyText.select();
+
+    /* Copy the text inside the text field */
+    document.execCommand("copy");
+  }
+
+  $(".logo-field").change(function(){
+    var imageDiv = $('.cover.image-division');
+    if (this.files.length > 0) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        if (window.location.href.indexOf('edit') < 0){
+          $('.uploaded-cover-image.course-create-image').attr('src', e.target.result).removeClass('hide');
+          $(imageDiv).find('.close-cross').removeClass('hide');
+        }else{
+          if ($('.cover .resort-logo-image.cimage').length != 0){
+            $('.cover .resort-logo-image.cimage').attr('src', e.target.result);
+          }else{
+            $(imageDiv).append("<span class='close-cross'>&times;</span> <img src='"+e.target.result+"' class='resort-logo-image cimage'>");
+          }
+        }
+      }
+      reader.readAsDataURL(this.files[0]);
+    }
+  });
+
+  $("#fore_btn_background").change(function(){
+    $("#resort_fore_btn_background").val(this.value)
+  });
+
+  $("#fore_line_color").change(function(){
+    $("#resort_fore_line_color").val(this.value)
+  });
+
+</script>

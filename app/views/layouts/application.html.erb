@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ForeWebapp</title>
+    <%= Gon::Base.render_data %>
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+   </head>
+  <body>
+
+    <div id="container-fluid" style="background-color: #F1F1F1 ">
+      <!-- <div  style="margin-left: 0px !important;padding-left: 15px !important; "> -->
+      <div class="row">
+        <div class="col-md-2">
+          <%= yield :side_nav %>
+        </div>
+        <div class="<%= current_admin ? 'col-md-10' : 'col-md-12'%>">
+            <%= render partial: 'layouts/navigation' %>
+            <%= render partial: 'layouts/messages' %>
+          <%= yield %>
+        </div>
+
+      </div>
+    <!-- </div> -->
+    </div>
+  </body>
+  <%= render :partial => 'layouts/google_analytics' %>
+</html>
